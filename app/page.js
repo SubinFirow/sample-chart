@@ -4,12 +4,13 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import { xAxisData, yAxisData } from "./service";
 
 export default function Home() {
@@ -19,7 +20,7 @@ export default function Home() {
   useEffect(() => {
     yAxisData()
       .then((res) => {
-        setYAxis(res.data);
+        setYAxis(res.data?.slice(0, 50));
       })
       .catch((error) => {
         // do nothing
@@ -29,7 +30,7 @@ export default function Home() {
   useEffect(() => {
     xAxisData()
       .then((res) => {
-        setXAxis(res.data);
+        setXAxis(res.data?.slice(0, 50));
       })
       .catch((error) => {
         // do nothing
@@ -39,7 +40,8 @@ export default function Home() {
   ChartJS.register(
     CategoryScale,
     LinearScale,
-    BarElement,
+    PointElement,
+    LineElement,
     Title,
     Tooltip,
     Legend
@@ -47,50 +49,53 @@ export default function Home() {
 
   const options = {
     responsive: true,
+    scales: {
+      x: {
+        display: true,
+        title: {
+          display: true,
+          text: "X-axis Label", // Custom label for x-axis
+        },
+      },
+      y: {
+        display: true,
+        title: {
+          display: true,
+          text: "Y-axis Label", // Custom label for y-axis
+        },
+        // ticks: {
+        //   callback: (value, index, values) => {
+        //     return yAxis.map((item) => item.Label); // Use custom labels for y-axis
+        //   },
+        // },
+      },
+    },
     plugins: {
       legend: {
         position: "top",
       },
       title: {
         display: true,
-        text: "Chart.js Bar Chart",
+        text: "Chart.js Line Chart",
       },
     },
   };
 
-  const labels = xAxis.map((item, i) => {
-    if (i < 49) {
-      return item.Label;
-    }
-  });
-
   const data = {
-    labels,
+    labels: xAxis.map((item) => item.Label),
     datasets: [
       {
         label: "Dataset 1",
-        data: xAxis.map((item, i) => {
-          if (i < 50) {
-            return item.RandomNumber;
-          }
-        }),
+        data: yAxis.map((item) => item.RandomNumber),
+        borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
-      },
-      {
-        label: "Dataset 2",
-        data: yAxis.map((item, i) => {
-          if (i < 50) {
-            return item.RandomNumber;
-          }
-        }),
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
       },
     ],
   };
 
   return (
     <React.Fragment>
-      <Bar options={options} data={data} />
+      <Line options={options} data={data} width={100} height={50} />
     </React.Fragment>
   );
 }
